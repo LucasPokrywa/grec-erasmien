@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1726">
+  <meta name="description" content="Φωνή : apprendre à prononcer le grec ancien en prononciation érasmienne, avec transcription API par syllabe.">
+  <title>Φωνή · Prononciation du grec ancien</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">φ</div>
+        <div><div class="brand-name">PHŌNĒ <span class="brand-greek">ΦΩΝΗ</span></div><div class="brand-sub">Atelier de phonétique grecque</div></div>
+      </div>
+      <div class="local-status"><span class="status-dot" id="engineDot"></span><span id="engineStatus">Vérification du moteur…</span></div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> GREC ANCIEN · PRONONCIATION ÉRASMIENNE</div>
+        <h1>Écoutez chaque <em>syllabe.</em><br>Comprenez chaque <em>son.</em></h1>
+        <p>Écrivez un mot ou une phrase en grec ancien. Obtenez sa transcription en alphabet phonétique international (API), puis écoutez-la d’un seul trait ou syllabe par syllabe.</p>
+      </section>
+
+      <div class="workbench">
+        <section class="panel editor-panel" aria-labelledby="inputTitle">
+          <div class="panel-heading"><div><span class="section-index">01 / SAISIE</span><h2 id="inputTitle">Votre texte grec</h2></div><span class="hint-tag">Unicode polytonique</span></div>
+          <label for="greekInput" class="input-label">TEXTE À PRONONCER</label>
+          <div class="textarea-wrap"><textarea id="greekInput" maxlength="240" aria-describedby="charCount" spellcheck="false" placeholder="Ἄνθρωπος..."></textarea><div class="textarea-bottom"><span id="charCount">0 / 240 caractères</span><button type="button" class="text-link" id="clearBtn">Effacer <span aria-hidden="true">×</span></button></div></div>
+          <div class="examples-header">ESSAYER UN EXEMPLE</div>
+          <div class="examples" id="exampleButtons">
+            <button type="button" class="example" data-text="ἄνθρωπος">ἄνθρωπος</button>
+            <button type="button" class="example" data-text="φιλοσοφία">φιλοσοφία</button>
+            <button type="button" class="example" data-text="ἀλήθεια">ἀλήθεια</button>
+            <button type="button" class="example" data-text="εὐδαιμονία">εὐδαιμονία</button>
+            <button type="button" class="example" data-text="γέφυρα">γέφυρα</button>
+            <button type="button" class="example" data-text="ὕδωρ">ὕδωρ</button>
+          </div>
+          <button id="analyzeBtn" class="analyze-btn" type="button"><span>Analyser la prononciation</span><span class="btn-arrow" aria-hidden="true">↗</span></button>
+          <div id="errorBox" class="error" role="alert" hidden></div>
+          <div class="editor-footnote">Prend en charge les esprits, accents, macrons, trémas, diphtongues et iotas souscrits.</div>
+        </section>
+
+        <section class="panel result-panel" aria-labelledby="resultTitle">
+          <div class="panel-heading"><div><span class="section-index">02 / RESTITUTION</span><h2 id="resultTitle">Prononciation</h2></div><span class="count-tag" id="syllableCount">— syllabes</span></div>
+          <div class="phonetic-result" aria-live="polite">
+            <div class="result-label">TEXTE ANALYSÉ</div>
+            <div class="result-greek" id="resultGreek">ἀλήθεια</div>
+            <div class="result-divider"></div>
+            <div class="ipa-header"><span class="result-label">TRANSCRIPTION API</span><button type="button" id="copyBtn" class="small-action" title="Copier la transcription">⧉ <span>Copier</span></button></div>
+            <div class="result-ipa" id="resultIpa">/a.ˈleː.θei̯.a/</div>
+          </div>
+          <div class="player-heading"><span class="result-label">LECTURE AUDIO</span><span id="playState" class="playing-state" aria-live="polite">Prêt à écouter</span></div>
+          <div class="player-actions">
+            <button type="button" id="normalBtn" class="play-btn play-primary"><span class="play-icon" aria-hidden="true">▶</span><span><strong>Prononciation normale</strong><small>Lecture continue</small></span></button>
+            <button type="button" id="slowBtn" class="play-btn play-secondary"><span class="play-icon" aria-hidden="true">◫</span><span><strong>Syllabe par syllabe</strong><small>Avec pauses et surlignage</small></span></button>
+          </div>
+          <div class="voice-settings">
+            <label for="voiceEngine" class="voice-label">TYPE DE VOIX</label>
+            <select id="voiceEngine" aria-describedby="voiceInfo">
+              <option value="edge">Neurale — naturelle (approximation)</option>
+              <option value="phonetic">Phonétique — plus précise, mais robotique</option>
+              <option value="azure" hidden>Neurale avec transcription API (Azure)</option>
+            </select>
+            <div id="edgeVoiceRow" class="voice-alt">
+              <label for="voiceGender">Timbre de la voix</label>
+              <select id="voiceGender"><option value="femme">Féminin</option><option value="homme">Masculin</option></select>
+            </div>
+            <p id="voiceInfo" class="voice-info">La voix neuronale prononce une approximation des sons grecs : vérifiez l’API affichée.</p>
+          </div>
+          <div class="sound-settings">
+            <div class="speed-title"><label for="speedRange">Vitesse de lecture</label><span id="speedValue">140 mots/min</span></div>
+            <input type="range" id="speedRange" min="85" max="200" value="140" step="5">
+            <div class="range-caption"><span>Lente</span><span>Rapide</span></div>
+          </div>
+          <div class="player-footer"><button id="stopBtn" type="button" class="mini-btn" disabled>■ Arrêter</button><button id="downloadBtn" type="button" class="mini-btn">↓ Télécharger l’audio</button></div>
+        </section>
+      </div>
+
+      <section class="syllables-section" aria-labelledby="splitTitle">
+        <div class="section-top"><div><span class="section-index">03 / DÉCOMPOSITION</span><h2 id="splitTitle">Une syllabe, un son.</h2><p>Cliquez sur une syllabe pour entendre uniquement celle-ci.</p></div><div class="syllable-legend"><span class="legend-accent"></span> syllabe accentuée</div></div>
+        <div id="syllableContainer" class="syllable-container"><div class="syllable-placeholder">Votre analyse s’affichera ici.</div></div>
+      </section>
+
+      <section class="reference" aria-labelledby="referenceTitle">
+        <div><span class="section-index">REPÈRES PHONÉTIQUES</span><h2 id="referenceTitle">Quelques sons à connaître</h2><p>Cette convention pédagogique conserve plusieurs distinctions absentes du grec moderne.</p></div>
+        <div class="sound-grid">
+          <div><span class="sound-greek">β</span><span class="sound-ipa">/b/</span><span class="sound-caption">b occlusif</span></div>
+          <div><span class="sound-greek">η</span><span class="sound-ipa">/eː/</span><span class="sound-caption">é long</span></div>
+          <div><span class="sound-greek">υ</span><span class="sound-ipa">/y/</span><span class="sound-caption">u français</span></div>
+          <div><span class="sound-greek">θ</span><span class="sound-ipa">/θ/</span><span class="sound-caption">th sourd</span></div>
+          <div><span class="sound-greek">χ</span><span class="sound-ipa">/x/</span><span class="sound-caption">fricative vélaire</span></div>
+          <div><span class="sound-greek">αι</span><span class="sound-ipa">/ai̯/</span><span class="sound-caption">diphtongue</span></div>
+        </div>
+      </section>
+      <aside class="method-note"><strong>À propos de la restitution.</strong> La prononciation « érasmienne » varie selon les traditions d’enseignement. Cette application utilise une convention scolaire explicitée dans sa documentation. Le mode phonétique eSpeak pilote directement les phonèmes ; le mode neuronal sans Azure est plus naturel mais sa prononciation reste approximative. Les accents sont approximés par un accent tonique (pas l’intonation musicale antique) et les quantités de α, ι, υ sans indication graphique restent parfois indéterminées. Les frontières syllabiques de certains composés peuvent nécessiter une analyse morphologique.</aside>
+    </main>
+    <footer><span>ΦΩΝΗ · UN OUTIL D’APPRENTISSAGE DU GREC ANCIEN</span><span>Voix neuronale en ligne · Aucun compte nécessaire</span></footer>
+  </div>
+</body>
+</html>
