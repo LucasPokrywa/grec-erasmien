@@ -53,6 +53,10 @@ def french_approx(ipa: str) -> str:
     out = []
     i = 0
     while i < len(src):
+        if src[i].isspace():
+            out.append(' ')
+            i += 1
+            continue
         if src[i] == '.':
             out.append('-')
             i += 1
@@ -73,7 +77,9 @@ def french_approx(ipa: str) -> str:
     result = re.sub(r's(?=$|-|\s)', 'sse', result)
     # Éviter les voyelles nasales françaises non souhaitées avant -n final.
     result = re.sub(r'([aioèéu])n(?=$|-|\s)', r'\1nne', result)
-    return result.replace('-', '')
+    # Conserver les frontières syllabiques pour éviter les voyelles parasites
+    # dans la prononciation neuronale (anne + tro ne doit pas devenir annetro).
+    return result.replace('-', ' ')
 
 
 async def _edge_bytes(text: str, voice: str, rate: str) -> bytes:
