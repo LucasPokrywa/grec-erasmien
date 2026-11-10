@@ -77,8 +77,13 @@ def french_approx(ipa: str) -> str:
     result = re.sub(r's(?=$|-|\s)', 'sse', result)
     # Éviter les voyelles nasales françaises non souhaitées avant -n final.
     result = re.sub(r'([aioèéu])n(?=$|-|\s)', r'\1nne', result)
-    # Conserver les frontières syllabiques pour éviter les voyelles parasites
-    # dans la prononciation neuronale (anne + tro ne doit pas devenir annetro).
+    # Une syllabe « ga » isolée entre des espaces peut être lue comme
+    # les noms des lettres « gé-a » par une voix française. La rattacher
+    # à une syllabe voisine (mè-ga-lé -> mèga lé, ga-la -> gala) favorise
+    # le /g/ dur, sans confondre les frontières entre mots.
+    result = re.sub(r'(?<=[A-Za-zÀ-ÿ])-(?=ga(?:-|\\s|$))', '', result)
+    result = re.sub(r'(?<!\\S)ga-(?=[A-Za-zÀ-ÿ])', 'ga', result)
+    # Les autres frontières syllabiques restent séparées : anne-tro-posse.
     return result.replace('-', ' ')
 
 
