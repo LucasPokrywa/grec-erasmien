@@ -81,8 +81,8 @@ def french_approx(ipa: str) -> str:
     # les noms des lettres « gé-a » par une voix française. La rattacher
     # à une syllabe voisine (mè-ga-lé -> mèga lé, ga-la -> gala) favorise
     # le /g/ dur, sans confondre les frontières entre mots.
-    result = re.sub(r'(?<=[A-Za-zÀ-ÿ])-(?=ga(?:-|\\s|$))', '', result)
-    result = re.sub(r'(?<!\\S)ga-(?=[A-Za-zÀ-ÿ])', 'ga', result)
+    result = re.sub(r'(?<=[A-Za-zÀ-ÿ])-(?=ga(?:-|\s|$))', '', result)
+    result = re.sub(r'(?<!\S)ga-(?=[A-Za-zÀ-ÿ])', 'ga', result)
     # Les autres frontières syllabiques restent séparées : anne-tro-posse.
     return result.replace('-', ' ')
 
