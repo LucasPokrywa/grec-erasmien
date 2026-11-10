@@ -9,6 +9,12 @@ class NeuralApproximationTests(unittest.TestCase):
         self.assertEqual(french_approx('ˈan.θrɔː.pos'), 'anne tro posse')
         self.assertEqual(french_approx('ˈgɛ.fy.ra'), 'guè fu ra')
 
+    def test_hard_gamma_in_sentence(self):
+        # Μεγάλη : the /ga/ syllable must not be read as the letters « gé a ».
+        self.assertEqual(french_approx('mɛ.ˈga.leː'), 'mèga lé')
+        self.assertEqual(french_approx('ˈga.la'), 'gala')
+        self.assertEqual(french_approx('mɛ.ˈga.leː mɛ.ˈga.leː'), 'mèga lé mèga lé')
+
     def test_word_boundaries(self):
         self.assertEqual(french_approx('ˈan.θrɔː.pos ˈan.θrɔː.pos'), 'anne tro posse anne tro posse')
 
